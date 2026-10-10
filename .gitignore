@@ -1,0 +1,30 @@
+node_modules/
+dist/
+public/models/
+public/wasm/
+test-results/
+playwright-report/
+.DS_Store
+*.log
+*.tsbuildinfo
+.tools/
+# Capacitor copies built files into native projects; regenerate with mobile:sync.
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+android/.gradle/
+android/local.properties
+android/app/build/
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/DerivedData/
+
+# Machine-specific IDE state and private deployment/signing files.
+android/.idea/
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.p12
+*.mobileprovision

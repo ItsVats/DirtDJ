@@ -1,0 +1,32 @@
+{
+  "model": "Xenova/ast-finetuned-audioset-10-10-0.4593",
+  "revision": "249a1fbf0286b40e7f1ed687a8ae396997bf7dc6",
+  "version": "a853740abb7b",
+  "files": [
+    {
+      "url": "/models/Xenova/ast-finetuned-audioset-10-10-0.4593/config.json",
+      "bytes": 26792,
+      "sha256": "49d0dce922da23685787c73a874d9b1ffa97297f8cc4dc0a4e8bef219725e44d"
+    },
+    {
+      "url": "/models/Xenova/ast-finetuned-audioset-10-10-0.4593/preprocessor_config.json",
+      "bytes": 297,
+      "sha256": "8d04ba5a9c6fca5d39d0de2b1fd05ecf79deb589fbba279728bbebac39934231"
+    },
+    {
+      "url": "/models/Xenova/ast-finetuned-audioset-10-10-0.4593/onnx/model_quantized.onnx",
+      "bytes": 90807386,
+      "sha256": "807d244b58a30eaa89f0a721fb841619c696857aabe4eac93769bd0b61497f61"
+    },
+    {
+      "url": "/wasm/ort-wasm-simd-threaded.mjs",
+      "bytes": 24381,
+      "sha256": "c57ca56328877353a575e51bbca6f18450027d6c9bf2307a2cb2c41363b4de9f"
+    },
+    {
+      "url": "/wasm/ort-wasm-simd-threaded.wasm",
+      "bytes": 14264838,
+      "sha256": "06ba057753da3847e4c24f02d91ab133455b0817c69a44993a9a53a2146df9e3"
+    }
+  ]
+}
