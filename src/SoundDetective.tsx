@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Search, Volume2, Mic, Check, Timer, X, Award, LoaderCircle } from 'lucide-react';
+import { Search, Volume2, Mic, Check, Timer, X, Award, LoaderCircle, Share2 } from 'lucide-react';
 import type { Sample } from './types';
 import { claimDiscovery, clueById, createDetective, judgeSound, nextClue, parseDetective, startAttempt, swapClue, type DetectiveCapture, type DetectiveGame } from './detective';
 import { readMission, stopMissionVoice } from './voice';
@@ -8,15 +8,17 @@ import { cancelFieldReminder, foregroundFieldCue, scheduleFieldReminder } from '
 
 const key = 'dirtdj-detective-v1';
 const storedGame = () => { try { return parseDetective(localStorage.getItem(key)); } catch { return undefined; } };
-export default function SoundDetective({ disabled, samplesLoaded, samples, busyId, onCapture, onAnalyze, onSearch }: {
+export default function SoundDetective({ disabled, samplesLoaded, samples, busyId, onCapture, onAnalyze, onSearch, onPostcard }: {
   disabled: boolean; samplesLoaded: boolean; samples: Sample[]; busyId?: string;
   onCapture: (request: DetectiveCapture) => void; onAnalyze: (sample: Sample) => Promise<Sample | undefined>; onSearch: () => void;
+  onPostcard: (game: DetectiveGame) => Promise<void>;
 }) {
   const [game, setGame] = useState<DetectiveGame | undefined>(storedGame);
   const [pocket, setPocket] = useState(false);
   const [hint, setHint] = useState(false);
   const [remind, setRemind] = useState(false);
   const [working, setWorking] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const [message, setMessage] = useState('');
   const [now, setNow] = useState(Date.now());
   const cued = useRef(0);
@@ -108,11 +110,19 @@ export default function SoundDetective({ disabled, samplesLoaded, samples, busyI
   }
   function continueCase() { stopMissionVoice(); setGame(current => current ? { ...current, attempt: null } : current); setHint(false); setMessage(''); }
 
+  async function postcard() {
+    if (!game || sharing) return;
+    setSharing(true); setMessage('');
+    try { await onPostcard(game); }
+    catch (error) { setMessage(error instanceof Error ? error.message : 'Could not share this postcard. Your recordings are still saved.'); }
+    finally { setSharing(false); }
+  }
+
   return <section className="field-game-panel detective-panel" aria-labelledby="detective-title">
     <div className="game-heading"><Search size={24}/><div><span className="eyebrow">LOOK UP. LISTEN. SOLVE.</span><h2 id="detective-title">Sound Detective</h2><p>The world hides the answers. Follow four clues and let local AI check your finds.</p></div><span className="detective-tag">SOLO / OFFLINE</span></div>
     <div className="game-content">{!game ? <div className="detective-intro"><p>A travelling drum. A hidden singer. A secret password. Which sounds will you uncover?</p><p className="mission-hint">Hear a clue, put your phone away, then return for a three-second capture. Your discoveries become a casebook.</p><button className="button primary" disabled={disabled || working} onClick={newCase}><Search size={16}/>Open a case</button></div> : <>
       <div className="game-progress"><span>{count} / 4 discoveries · {matches} AI {matches === 1 ? 'match' : 'matches'}</span><div aria-label={`${count} of 4 clues solved`}>{game.discoveries.map((d, i) => <span key={i} className={d ? 'mission-done' : ''}>{d ? <Check size={13}/> : i + 1}</span>)}</div></div>
-      {finished ? <div className="detective-finished"><Award size={35}/><h3>Case closed. Ears open.</h3><p>You uncovered four sounds hiding in plain sight.</p><ul className="casebook">{game.discoveries.map((d, i) => <li key={game.clueIds[i]}><Check size={16}/><div><strong>{clueById(game.clueIds[i]).answer}</strong><span>{d?.verified ? 'AI matched' : 'Confirmed by you'}</span></div></li>)}</ul><p className="mission-hint">{matches} AI {matches === 1 ? 'match' : 'matches'} · {4 - matches} confirmed by you. Your evidence stays in Field notes.</p><button className="button primary" disabled={disabled || working} onClick={newCase}>Open another case</button></div> : clue && <div className="mission-card">
+      {finished ? <div className="detective-finished"><Award size={35}/><h3>Case closed. Ears open.</h3><p>You uncovered four sounds hiding in plain sight.</p><ul className="casebook">{game.discoveries.map((d, i) => <li key={game.clueIds[i]}><Check size={16}/><div><strong>{clueById(game.clueIds[i]).answer}</strong><span>{d?.verified ? 'AI matched' : 'Confirmed by you'}</span></div></li>)}</ul><p className="mission-hint">{matches} AI {matches === 1 ? 'match' : 'matches'} · {4 - matches} confirmed by you. Your evidence stays in Field notes.</p><div className="postcard-card"><Share2 size={24}/><h4>Your walk, in sound.</h4><p>Keep a short audio memory of your four discoveries. Made on this device, ready to save or share.</p><button className="button primary" disabled={disabled || working || sharing} onClick={postcard}>{sharing ? <LoaderCircle size={16} className="spin"/> : <Share2 size={16}/>}Share Sound Postcard</button></div><button className="button" disabled={disabled || working || sharing} onClick={newCase}>Open another case</button></div> : clue && <div className="mission-card">
         <span className="eyebrow">CLUE {index + 1} / THE {['FIRST', 'SECOND', 'THIRD', 'FOURTH'][index]} MYSTERY</span><h3>{clue.title}</h3><p className="detective-riddle">{clue.riddle}</p>
         {game.attempt && attemptSample ? <div className={'detective-verdict ' + (discovery ? 'verdict-match' : '')} aria-live="polite">
           {checking ? <><LoaderCircle className="spin" size={22}/><h4>Checking your evidence…</h4><p>The model is listening on this device. You can look up while it works.</p></> : discovery ? <><Award size={24}/><h4>{discovery.verified ? 'Mystery solved.' : 'Discovery kept.'}</h4><p>{discovery.verified ? `AI matched ${verdict?.target?.label ?? clue.answer}.` : 'You confirmed this find. It is recorded separately from AI matches.'}</p><button className="button primary" onClick={continueCase}>Next clue</button></> : <>

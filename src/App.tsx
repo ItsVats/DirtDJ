@@ -9,7 +9,8 @@ import { deleteSample, loadProject, loadSamples, saveProject, saveSample } from 
 import { offlineAvailable, prepareOffline, registerOffline } from './offline';
 import Recorder from './Recorder';
 import SoundDetective from './SoundDetective';
-import type { DetectiveCapture } from './detective';
+import type { DetectiveCapture, DetectiveGame } from './detective';
+import { soundPostcard } from './audio/postcard';
 import { downloadOrShare, nativeApp } from './mobile';
 
 function Wave({ sample, color = 'currentColor' }: { sample: Sample; color?: string }) {
@@ -169,6 +170,12 @@ export default function App() {
     finally { setPackProgress(undefined); }
   }
 
+  async function sharePostcard(game: DetectiveGame) {
+    const blob = soundPostcard(game, samples);
+    await downloadOrShare(blob, `dirtdj-sound-postcard-${new Date().toISOString().slice(0, 10)}-${game.id.slice(0, 8)}.wav`, 'My Dirt DJ Sound Postcard');
+    tell('Sound Postcard exported. Four discoveries, saved as one audio memory.');
+  }
+
   async function remove(sample: Sample) {
     try {
       await deleteSample(sample.id);
@@ -203,7 +210,7 @@ export default function App() {
 
       <div hidden={mobile && screen !== 'hunt'} className="hunt-screen">
         {mobile && <div className="mobile-welcome"><span className="eyebrow">A FIELD TRIP FOR YOUR EARS</span><h1>Follow your ears.</h1><p>One clue. A few seconds. Back outside.</p></div>}
-      <SoundDetective disabled={busy || !loaded} samplesLoaded={loaded} samples={samples} busyId={busyId} onSearch={() => { stop(); stopPreview(); setPreviewId(undefined); }} onAnalyze={analyze} onCapture={request => { setFieldCapture(request); setRecordRole('thump'); }}/></div>
+      <SoundDetective disabled={busy || !loaded} samplesLoaded={loaded} samples={samples} busyId={busyId} onPostcard={sharePostcard} onSearch={() => { stop(); stopPreview(); setPreviewId(undefined); }} onAnalyze={analyze} onCapture={request => { setFieldCapture(request); setRecordRole('thump'); }}/></div>
 
       <section className="field-kit" hidden={mobile && screen !== 'kit'}><div className="section-heading"><div><span className="eyebrow">01 / COLLECT</span><h2>Your field kit<span className="count-tag">{sampleCount} / 4 sounds</span></h2></div><p>Four ingredients. Infinite little possibilities.</p></div><div className="kit-grid">{ROLES.map((role, index) => {
         const sample = samples.find(item => item.id === project.tracks[index]?.sampleId);

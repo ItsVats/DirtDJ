@@ -1,5 +1,7 @@
 # Dirt DJ
 
+[![Offline AI and Android](https://github.com/ItsVats/DirtDJ/actions/workflows/ci.yml/badge.svg)](https://github.com/ItsVats/DirtDJ/actions/workflows/ci.yml)
+
 **The outdoors is your instrument.** Solve sound mysteries with **Sound Detective**, using an open-weight audio model on your device. Or collect your own sounds and arrange them on the dirt deck.
 
 Built for the **Touch Grass** challenge. No accounts, cloud AI, or inference API keys. Recordings stay on your device. This is a solo app with no multiplayer server.
@@ -29,7 +31,7 @@ For editing with live reload, use `npm run dev` at **http://localhost:5173**. Of
 
 ## Try it
 
-1. Open a **Sound Detective** case. Hear or read a mystery clue, lock your phone and explore, then tap once to capture three seconds. The local AST model checks the saved evidence against a sound family. A clear match earns a discovery; an uncertain result lets you retry, swap the clue or explicitly confirm the find yourself. Complete four clues to close the case and see your casebook. Detective captures do not assign lanes or start music.
+1. Open a **Sound Detective** case. Hear or read a mystery clue, lock your phone and explore, then tap once to capture three seconds. The local AST model checks the saved evidence against a sound family. A clear match earns a discovery; an uncertain result lets you retry, swap the clue or explicitly confirm the find yourself. Complete four clues to close the case and see your casebook. Share a **Sound Postcard**: a short WAV joining your four discoveries in clue order, made entirely on the device. Detective captures do not assign lanes or start music.
 2. Record a six-second sound in any lane, or import a WAV/MP3/M4A/WebM file. Imports keep the first ten seconds and are converted to mono. Maximum import size: 30 MB.
 3. The local model returns its three highest scoring sound labels. You choose the lane; its suggested musical role appears in Field notes.
 4. Tap the 16-step grid, adjust tempo/swing/levels, and press play. Edits apply on the next loop while playback continues. Type a tempo from 50–160 BPM.
@@ -94,6 +96,8 @@ npm audit
 ```
 
 Browser tests use generated test audio, run the actual model (no mocked inference), disconnect the browser, reload, import audio, and check its labels. They also check WAV output, saved rhythm steps, recorder closure and invalid imports, and a complete disconnected detective case with three-second captures, actual AI verdicts, distinct self-confirmations, resumed progress and unchanged deck. Speech tests verify that remote voices are never selected and pending narration is canceled before capture. PNG screenshots go to the ignored `test-results/` folder.
+
+GitHub Actions repeats these checks on `main`, then compiles an Android test APK and verifies its bundled model. See [automation and APK signing notes](docs/AUTOMATION.md). The Android CI artifact uses a temporary debug key; it is separate from the local APK used to update your phone. A ready-to-edit challenge post is in [the submission draft](docs/SUBMISSION.md).
 
 ## Host it yourself
 

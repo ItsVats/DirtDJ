@@ -150,6 +150,7 @@ test('offline detective: real three-second evidence, AI verdicts, resumed case, 
   });
   await page.reload();
 
+  await expect(page.getByRole('button', { name: 'Share Sound Postcard', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Need a hint?', exact: true }).click();
   await expect(page.locator('.clue-hint-copy')).toBeVisible();
   await page.getByRole('button', { name: 'Put phone away', exact: true }).click();
@@ -184,6 +185,15 @@ test('offline detective: real three-second evidence, AI verdicts, resumed case, 
   }
   await expect(page.getByRole('heading', { name: 'Case closed. Ears open.' })).toBeVisible();
   await expect(page.locator('.casebook li')).toHaveCount(4);
+  const postcardDownload = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Share Sound Postcard', exact: true }).click();
+  const postcard = await postcardDownload;
+  expect(postcard.suggestedFilename()).toMatch(/^dirtdj-sound-postcard-.*\.wav$/);
+  const postcardBytes = await readFile((await postcard.path())!);
+  expect(postcardBytes.subarray(0, 4).toString()).toBe('RIFF');
+  expect(postcardBytes.readUInt32LE(24)).toBe(44100);
+  expect(postcardBytes.length).toBeGreaterThan(1000000);
+  expect(postcardBytes.length).toBeLessThanOrEqual(44 + Math.round(12.9 * 44100) * 2);
   await expect(page.getByRole('button', { name: 'Stop beat', exact: true })).toHaveCount(0);
   await page.getByRole('navigation').getByRole('button', { name: 'Kit', exact: true }).click();
   await expect(page.getByText('0 / 4 sounds', { exact: true })).toBeVisible();

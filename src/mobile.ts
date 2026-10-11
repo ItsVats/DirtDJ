@@ -18,13 +18,13 @@ export async function requestMicrophoneAccess() {
   if (result.microphone !== 'granted') throw new DOMException('Microphone permission is required.', 'NotAllowedError');
 }
 export const openAudioSettings = () => AudioAccess.openSettings();
-export async function downloadOrShare(blob: Blob, filename: string) {
+export async function downloadOrShare(blob: Blob, filename: string, title = 'My Dirt DJ beat') {
   if (nativeApp()) {
     const bytes = new Uint8Array(await blob.arrayBuffer());
     let binary = '';
     for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
     const file = await Filesystem.writeFile({ path: filename, data: btoa(binary), directory: Directory.Cache });
-    await Share.share({ title: 'My Dirt DJ beat', files: [file.uri], dialogTitle: 'Save or share your beat' });
+    await Share.share({ title, files: [file.uri], dialogTitle: title });
   } else {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a'); anchor.href = url; anchor.download = filename; anchor.click();

@@ -6,7 +6,7 @@ The React/TypeScript app is the shared product code. **Capacitor** embeds its pr
 
 This is a hybrid native app: it has Android and iOS projects and can be built into installed apps. The interface is still written in React; it has not been rewritten in Kotlin or Swift. The native wrappers package local model/runtime assets, so they do not depend on a website being reachable after installation.
 
-**Current verification:** Android test build 1.1 (version code 2) compiled successfully. Android emulator checks passed for the microphone prompt, denial recovery/app settings, recording start and track release, airplane-mode AI classification, playback and tab switching. Physical-phone compatibility still needs checking. It is at `android/app/build/outputs/apk/debug/app-debug.apk` (about 81 MB). Native projects were generated and synchronized; browser tests cover real AI inference, offline reload and complete detective cases. Physical-phone testing and iOS compilation are unverified. The machine lacks full Xcode. Native WebView behavior must be checked on target devices.
+**Current verification:** Android test build 1.2 (version code 3) compiled successfully. Android emulator checks passed for the microphone prompt, denial recovery/app settings, recording start and track release, airplane-mode AI classification, playback and tab switching. The Sound Postcard check also created a valid WAV and opened Android's native share chooser in airplane mode, using synthetic recordings. Physical-phone compatibility still needs checking. It is at `android/app/build/outputs/apk/debug/app-debug.apk` (about 81 MB). Browser tests cover real AI inference, offline reload, complete detective cases, and Sound Postcard WAV export. Native WebView behavior must be checked on target devices.
 
 ## Mobile screens and microphone access
 
@@ -62,6 +62,7 @@ Official setup references: [Run on a device](https://help.apple.com/xcode/mac/cu
 3. Return and tap **Found it. Check my sound**. The app records three seconds, stops the microphone, saves the evidence and runs AST locally.
 4. An AI match earns a discovery. If the model is unsure, try another sound, check again, choose a different clue, or explicitly confirm the find yourself. Self-confirmed discoveries are never labeled AI matches.
 5. Complete four clues to close the case. The casebook lists the discoveries and how they were confirmed. Detective captures stay in Field notes without assigning deck lanes or starting a beat. The music deck is a separate activity.
+6. Tap **Share Sound Postcard** to join those four recordings into a short WAV. File creation works offline; the Android system chooser lets you save or share it. Sending through a messaging service may require internet.
 
 The case, saved evidence IDs and search timestamp persist locally. Reload resumes it, including a saved attempt awaiting a verdict. Deleting evidence reopens its clue. Starting a new case keeps older recordings. Old adventure recordings are retained; old adventure rounds do not become verified detective discoveries.
 
