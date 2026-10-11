@@ -8,7 +8,7 @@
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 
-/* Sound safari: one card to read, then a dark view for putting the phone away. */
+/* One clue to read, then a dark view for putting the phone away. */
 
 .game-mode { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 @media (max-width: 600px) { .game-mode { grid-template-columns: 1fr; } }
@@ -25,3 +25,149 @@
 .detective-verdict{margin-top:20px;padding:20px;border:1px solid #d7ccb5;background:#f5f0e5;border-radius:7px}.detective-verdict h4{font-size:21px;letter-spacing:-.03em;margin:8px 0}.detective-verdict p{font-size:12px;line-height:1.7;margin:8px 0 14px;max-width:700px}.detective-verdict .mission-hint{font-size:11px;color:var(--muted)}.detective-verdict.verdict-match{background:#e2ebd6;border-color:#bccdab;color:#405935}.detective-verdict .mission-actions{align-items:center}.detective-verdict .text-button{white-space:normal;text-align:left;line-height:1.5}
 .detective-finished{text-align:center;padding:15px 0 5px}.detective-finished>svg{color:#647e4b}.detective-finished h3{font-size:30px;margin:12px 0}.detective-finished p{font-size:12px;line-height:1.7;color:var(--muted);margin:10px 0 20px}.casebook{list-style:none;padding:0;margin:22px auto;max-width:760px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;text-align:left}.casebook li{border:1px solid #cbd5bb;background:#f6f7ef;border-radius:6px;padding:14px;display:flex;align-items:center;gap:12px}.casebook li>svg{color:#718958}.casebook strong{font-size:13px}.casebook span{display:block;font-family:var(--mono);font-size:9px;color:#76886b;margin-top:6px}
 @media(max-width:600px){.detective-tag{margin-left:34px;font-size:8px}.detective-verdict{padding:16px}.detective-finished h3{font-size:26px}.casebook{grid-template-columns:1fr}.detective-intro>p{font-size:13px}}
+
+/* Mobile uses separate, persistent screens so tab changes never reset a case or beat. */
+[hidden] { display: none !important; }
+.step-number { display: none; }
+.app-shell[data-mobile=true] {
+  max-width: 760px;
+  padding: 0 18px calc(94px + env(safe-area-inset-bottom, 0px));
+  min-height: 100dvh;
+}
+[data-mobile=true] .topbar {
+  height: auto;
+  min-height: 68px;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 0 12px;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--paper);
+}
+[data-mobile=true] .brand { font-size: 23px; }
+[data-mobile=true] .brand-mark { width: 34px; height: 34px; }
+[data-mobile=true] .offline-setup { min-height: 44px; font-size: 12px; }
+[data-mobile=true] main { padding-top: 24px; }
+.mobile-welcome { margin-bottom: 24px; }
+.mobile-welcome .eyebrow { font-size: 10px; color: #69785e; }
+.mobile-welcome h1 { font-size: 36px; margin: 12px 0 8px; line-height: 1.12; letter-spacing: -1.6px; }
+.mobile-welcome p { font-size: 14px; line-height: 1.6; color: var(--muted); }
+.mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 8px max(12px, env(safe-area-inset-left, 0px)) calc(8px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid #d4dac8;
+  background: var(--paper);
+  box-shadow: 0 -4px 24px #29382e08;
+}
+.mobile-nav button { position: relative; min-height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; border-radius: 14px; color: #6c7964; }
+.mobile-nav button span { font-size: 12px; font-weight: 600; }
+.mobile-nav button[aria-current=page] { color: #b73e1b; background: #f8e3d5; }
+.mobile-nav i { position: absolute; top: 8px; right: 25%; width: 6px; height: 6px; background: #647f45; border-radius: 50%; }
+[data-mobile=true] .button { min-height: 48px; font-size: 14px; border-radius: 10px; padding: 12px 16px; white-space: normal; line-height: 1.4; }
+[data-mobile=true] .icon-button { min-width: 44px; min-height: 44px; }
+[data-mobile=true] .text-button { min-height: 44px; font-size: 13px; }
+[data-mobile=true] .field-game-panel { margin: 0; padding: 22px 18px; border-radius: 18px; }
+[data-mobile=true] .game-heading { gap: 10px; }
+[data-mobile=true] .game-heading > div { min-width: 0; }
+[data-mobile=true] .game-heading .eyebrow, [data-mobile=true] .game-heading p, [data-mobile=true] .detective-tag { display: none; }
+[data-mobile=true] .game-heading h2 { font-size: 24px; margin: 2px 0; }
+[data-mobile=true] .game-heading > svg { margin-top: 3px; }
+[data-mobile=true] .detective-intro > p { font-size: 16px; line-height: 1.65; }
+[data-mobile=true] .detective-intro .mission-hint { font-size: 13px; }
+[data-mobile=true] .detective-intro > .button { width: 100%; margin-top: 8px; }
+[data-mobile=true] .game-progress { flex-wrap: wrap; font-size: 11px; }
+[data-mobile=true] .game-progress > div > span { width: 30px; height: 30px; }
+[data-mobile=true] .mission-card h3 { font-size: 29px; }
+[data-mobile=true] .mission-card > p { font-size: 16px; line-height: 1.65; }
+[data-mobile=true] .mission-card > .mission-hint, [data-mobile=true] .game-message { font-size: 13px; }
+[data-mobile=true] .reminder-toggle { font-size: 13px; min-height: 44px; line-height: 1.5; }
+[data-mobile=true] .reminder-toggle input { width: 20px; height: 20px; flex-shrink: 0; }
+[data-mobile=true] .mission-actions { flex-direction: column; align-items: stretch; }
+[data-mobile=true] .mission-actions > .button { width: 100%; flex: auto; }
+[data-mobile=true] .detective-verdict { padding: 16px; border-radius: 12px; }
+[data-mobile=true] .detective-verdict p { font-size: 14px; }
+[data-mobile=true] .section-heading { align-items: flex-start; margin-bottom: 20px; }
+[data-mobile=true] .section-heading h2 { font-size: 30px; flex-wrap: wrap; gap: 8px; }
+[data-mobile=true] .section-heading .eyebrow { font-size: 10px; }
+[data-mobile=true] .count-tag { font-size: 11px; }
+[data-mobile=true] .kit-grid { grid-template-columns: 1fr; gap: 16px; }
+[data-mobile=true] .kit-card { padding: 18px; border-radius: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+[data-mobile=true] .kit-top { grid-column: 1 / -1; }
+[data-mobile=true] .lane-number, [data-mobile=true] .instrument-tag { font-size: 11px; }
+[data-mobile=true] .kit-card h3 { font-size: 28px; margin: 4px 0 0; }
+[data-mobile=true] .kit-card > p { grid-column: 1; font-size: 13px; line-height: 1.5; max-width: none; }
+[data-mobile=true] .kit-sound { grid-column: 2; grid-row: 2 / 4; height: auto; min-width: 0; }
+[data-mobile=true] .empty-wave { flex-direction: column; gap: 6px; border: 0; }
+[data-mobile=true] .empty-wave span { font-size: 10px; }
+[data-mobile=true] .kit-actions { grid-column: 1 / -1; margin-top: 8px; }
+[data-mobile=true] .sound-type { font-size: 10px; }
+[data-mobile=true] .sample-preview > span { font-size: 12px; }
+[data-mobile=true] .studio-panel { margin: 0; padding: 0; background: transparent; border: 0; }
+[data-mobile=true] .deck-status { max-width: 100px; font-size: 10px; line-height: 1.5; margin-top: 25px; }
+[data-mobile=true] .deck-controls { flex-direction: column; gap: 16px; }
+[data-mobile=true] .transport { gap: 14px; justify-content: space-between; }
+[data-mobile=true] .play-button { width: 52px; height: 52px; flex-shrink: 0; border-radius: 50%; }
+[data-mobile=true] .tempo-label { font-size: 10px; }
+[data-mobile=true] .tempo-label input { width: 67px; min-height: 44px; font-size: 24px; }
+[data-mobile=true] .control-divider { display: none; }
+[data-mobile=true] .swing-label { font-size: 10px; flex: 1; max-width: 115px; }
+[data-mobile=true] .swing-label input { height: 34px; }
+[data-mobile=true] .deck-actions { display: flex; gap: 10px; }
+[data-mobile=true] .deck-actions > .button { flex: 1; }
+[data-mobile=true] .sequencer-scroll { overflow: visible; padding: 0; margin-top: 20px; }
+[data-mobile=true] .sequencer { min-width: 0; }
+[data-mobile=true] .beat-ruler { display: none; }
+[data-mobile=true] .track-row { grid-template-columns: minmax(0, 1fr) 100px; gap: 12px; padding: 18px; background: #eaede1; border: 1px solid #d4dac8; border-radius: 16px; margin-bottom: 14px; }
+[data-mobile=true] .track-info { gap: 10px; }
+[data-mobile=true] .track-info strong { font-size: 17px; }
+[data-mobile=true] .track-info select { width: 100%; max-width: 155px; font-size: 12px; min-height: 32px; }
+[data-mobile=true] .lane-level { width: 100%; height: 44px; grid-column: 2; grid-row: 1; }
+[data-mobile=true] .step-grid { grid-column: 1 / -1; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+[data-mobile=true] .step { height: 48px; border-radius: 8px; }
+[data-mobile=true] .step-number { display: inline; font-size: 12px; color: #5f7053; }
+[data-mobile=true] .step.step-on .step-number { color: #fff; }
+[data-mobile=true] .step.step-on > span { display: none; }
+[data-mobile=true] .deck-footer { font-size: 11px; flex-direction: column; gap: 8px; }
+[data-mobile=true] .deck-footer > span, [data-mobile=true] .deck-footer > span:last-child { max-width: none; font-size: 11px; text-align: left; }
+[data-mobile=true] .collection-section { padding: 0; }
+[data-mobile=true] .section-heading > .small { font-size: 10px; max-width: 100px; }
+[data-mobile=true] .empty-collection { padding: 24px 18px; border-radius: 16px; }
+[data-mobile=true] .empty-collection h3 { font-size: 17px; }
+[data-mobile=true] .empty-collection p { font-size: 13px; }
+[data-mobile=true] .empty-collection .text-button { margin-left: 0; width: 100%; }
+[data-mobile=true] .sample-list { border: 0; overflow: visible; }
+[data-mobile=true] .sample-row { border: 1px solid var(--line); border-radius: 14px; margin-bottom: 12px; padding: 16px 12px; gap: 8px; flex-wrap: wrap; background: #f8f7f0; }
+[data-mobile=true] .sample-details { width: auto; flex: 1; }
+[data-mobile=true] .sample-details h3 { font-size: 15px; }
+[data-mobile=true] .sample-details h3 > span { font-size: 10px; }
+[data-mobile=true] .library-wave { display: none; }
+[data-mobile=true] .predictions { width: 100%; max-width: none; justify-content: flex-start; padding-left: 0; order: 10; }
+[data-mobile=true] .predictions > span:not(.unclassified) { font-size: 11px; max-width: 100%; }
+[data-mobile=true] .predictions small, [data-mobile=true] .unclassified { font-size: 10px; }
+[data-mobile=true] .toast { bottom: calc(90px + env(safe-area-inset-bottom, 0px)); }
+[data-mobile=true] .modal-backdrop { padding: 0; align-items: stretch; background: var(--paper); backdrop-filter: none; }
+[data-mobile=true] .record-dialog { max-width: none; width: 100%; max-height: 100dvh; border: 0; border-radius: 0; box-shadow: none; padding: calc(64px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; align-items: center; }
+[data-mobile=true] .modal-close { top: calc(12px + env(safe-area-inset-top, 0px)); right: 16px; }
+[data-mobile=true] .record-dialog .eyebrow { font-size: 10px; }
+[data-mobile=true] .record-dialog h2 { font-size: 32px; margin-top: 24px; }
+[data-mobile=true] .record-dialog > .muted { font-size: 15px; }
+[data-mobile=true] .record-orb { width: 140px; height: 140px; margin: 36px auto 24px; flex-shrink: 0; }
+[data-mobile=true] .record-time { font-size: 36px; }
+[data-mobile=true] .record-time span { font-size: 14px; }
+[data-mobile=true] .record-actions { width: 100%; margin-top: 24px; }
+[data-mobile=true] .record-actions > .button { width: 100%; }
+[data-mobile=true] .record-dialog > .small { font-size: 12px; }
+[data-mobile=true] .field-label { width: 100%; font-size: 12px; }
+[data-mobile=true] .field-label input { font-size: 16px; min-height: 48px; }
+[data-mobile=true] .error-text { font-size: 14px; }
+[data-mobile=true] .pocket-overlay { padding-top: calc(25px + env(safe-area-inset-top, 0px)); padding-bottom: calc(25px + env(safe-area-inset-bottom, 0px)); }
+[data-mobile=true] .mobile-lanes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 24px; }
+.mobile-lanes button { min-height: 44px; font-size: 12px; font-weight: 600; border: 1px solid var(--line); border-radius: 10px; }
+.mobile-lanes button[aria-pressed=true] { border-color: var(--lane-color); background: var(--lane-color); color: white; }
+[data-mobile=true] .mobile-lanes + .sequencer-scroll { margin-top: 12px; }

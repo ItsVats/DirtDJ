@@ -6,7 +6,15 @@ The React/TypeScript app is the shared product code. **Capacitor** embeds its pr
 
 This is a hybrid native app: it has Android and iOS projects and can be built into installed apps. The interface is still written in React; it has not been rewritten in Kotlin or Swift. The native wrappers package local model/runtime assets, so they do not depend on a website being reachable after installation.
 
-**Current verification:** the Android debug APK compiled successfully. It is at `android/app/build/outputs/apk/debug/app-debug.apk` (about 81 MB). Native projects were generated and synchronized; browser tests cover real AI inference, offline reload and complete detective cases. Physical-phone testing and iOS compilation are unverified. The machine lacks full Xcode. Native WebView behavior must be checked on target devices.
+**Current verification:** Android test build 1.1 (version code 2) compiled successfully. Android emulator checks passed for the microphone prompt, denial recovery/app settings, recording start and track release, airplane-mode AI classification, playback and tab switching. Physical-phone compatibility still needs checking. It is at `android/app/build/outputs/apk/debug/app-debug.apk` (about 81 MB). Native projects were generated and synchronized; browser tests cover real AI inference, offline reload and complete detective cases. Physical-phone testing and iOS compilation are unverified. The machine lacks full Xcode. Native WebView behavior must be checked on target devices.
+
+## Mobile screens and microphone access
+
+On phones and in the native app, bottom navigation opens **Hunt**, **Kit**, **Deck**, or **Sounds**. The desktop web view keeps its wider layout. Mobile screens remain mounted when hidden, so switching tabs preserves detective progress and continuous playback. The deck shows one selectable lane with sixteen numbered touch controls in a four-by-four grid. Recording opens a full-screen capture view and prevents background scrolling.
+
+Android's manifest now declares `MODIFY_AUDIO_SETTINGS` alongside `RECORD_AUDIO`: Capacitor's WebView audio capture checks both. The local `AudioAccess` Capacitor plugin requests the microphone permission when capture begins and opens Android app settings if access is denied. Recording still uses MediaRecorder/Web Audio; this plugin does not upload or record audio itself. The error message refers to phone permissions in native builds and browser site settings on the web.
+
+Install this APK over the existing Dirt DJ installation to update without clearing its recordings. If permission remains denied, use **Open app settings → Permissions → Microphone**, allow access while using the app, and return to retry. Check the device microphone privacy toggle too.
 
 ## Install on your Android phone now
 

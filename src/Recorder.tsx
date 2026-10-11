@@ -6,12 +6,14 @@ import { ROLES } from './types';
 import { rms } from './audio/dsp';
 import { stopMissionVoice } from './voice';
 import type { DetectiveCapture } from './detective';
+import { androidApp, nativeApp, openAudioSettings, requestMicrophoneAccess } from './mobile';
 
 export default function Recorder({ role, quickCapture, onRecordingStart, onClose, onSave }: { role: Role; quickCapture?: DetectiveCapture; onRecordingStart: () => void; onClose: () => void; onSave: (sample: Sample) => Promise<void> }) {
   const [recording, setRecording] = useState(false);
   const [busy, setBusy] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [error, setError] = useState('');
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const [level, setLevel] = useState(0);
   const [name, setName] = useState('');
   const [captured, setCaptured] = useState<Sample>();
@@ -34,6 +36,8 @@ export default function Recorder({ role, quickCapture, onRecordingStart, onClose
   useEffect(() => {
     alive.current = true;
     const before = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     const dialog = document.getElementById('record-dialog')!;
     dialog.focus();
     const key = (event: KeyboardEvent) => {
@@ -47,12 +51,14 @@ export default function Recorder({ role, quickCapture, onRecordingStart, onClose
     };
     document.addEventListener('keydown', key);
     const automatic = quickCapture ? setTimeout(() => { void start(); }, 0) : undefined;
-    return () => { clearTimeout(automatic); alive.current = false; cleanup(); document.removeEventListener('keydown', key); before?.focus(); };
+    return () => { clearTimeout(automatic); alive.current = false; cleanup(); document.removeEventListener('keydown', key); document.body.style.overflow = previousOverflow; before?.focus(); };
   }, []);
 
   async function start() {
-    stopMissionVoice(); setError(''); setBusy(true); setCaptured(undefined); onRecordingStart(); stopPreview();
+    stopMissionVoice(); setError(''); setPermissionDenied(false); setBusy(true); setCaptured(undefined); onRecordingStart(); stopPreview();
     try {
+      await requestMicrophoneAccess();
+      if (!alive.current) return;
       if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) throw new Error('Recording needs HTTPS or localhost and a browser with microphone support. You can also import an audio file.');
       const microphone = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
       if (!alive.current) { microphone.getTracks().forEach(track => track.stop()); return; }
@@ -91,7 +97,14 @@ export default function Recorder({ role, quickCapture, onRecordingStart, onClose
       timer.current = setInterval(() => { const elapsed = (performance.now() - beginning) / 1000; setSeconds(elapsed); if (elapsed >= duration) cleanup(); }, 100);
     } catch (err) {
       cleanup();
-      if (alive.current) setError(err instanceof DOMException && err.name === 'NotAllowedError' ? 'Microphone access was denied. Allow it in your browser’s site settings, or import an audio file.' : err instanceof Error ? err.message : 'Could not access the microphone.');
+      if (alive.current) {
+        const denied = err instanceof Error && (err.name === 'NotAllowedError' || err.name === 'SecurityError');
+        setPermissionDenied(denied);
+        setError(denied ? nativeApp()
+          ? 'Microphone access is off. In your phone settings, allow Dirt DJ to use the microphone, then return and try again. Also check your phone’s microphone privacy toggle.'
+          : 'Microphone access was denied. Allow it in your browser’s site settings, or import an audio file.'
+          : err instanceof Error ? err.message : 'Could not access the microphone.');
+      }
     } finally { if (alive.current) setBusy(false); }
   }
 
@@ -105,6 +118,7 @@ export default function Recorder({ role, quickCapture, onRecordingStart, onClose
       <div className="record-time">{seconds.toFixed(1)}<span> / {duration.toFixed(1)} sec</span></div>
       {captured && !quickCapture && <label className="field-label">Give your sound a name<input autoFocus value={name} onChange={event => setName(event.target.value)} placeholder={captured.name} maxLength={60}/></label>}
       {error && <p className="error-text" role="alert">{error}</p>}
+      {permissionDenied && androidApp() && <button className="button" onClick={() => { void openAudioSettings().catch(() => setError('Open Settings → Apps → Dirt DJ → Permissions → Microphone, then allow access.')); }}>Open app settings</button>}
       <div className="record-actions">
         {recording ? <button className="button primary" onClick={cleanup}><Square size={16} fill="currentColor"/>Stop recording</button> : <button className="button" disabled={busy} onClick={start}><Mic size={17}/>{busy ? 'Working…' : captured ? 'Record again' : 'Start recording'}</button>}
         {captured && <button className="button primary" disabled={busy} onClick={async () => { setBusy(true); try { await onSave({ ...captured, name: name.trim() || captured.name }); } catch (err) { setError(err instanceof Error ? err.message : 'Could not save.'); setBusy(false); } }}>Keep this sound</button>}

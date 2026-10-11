@@ -1,8 +1,23 @@
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 
 export const nativeApp = () => Capacitor.isNativePlatform();
+export const androidApp = () => Capacitor.getPlatform() === 'android';
+const AudioAccess = registerPlugin<{
+  checkPermissions(): Promise<{ microphone: string }>;
+  requestPermissions(): Promise<{ microphone: string }>;
+  openSettings(): Promise<void>;
+}>('AudioAccess');
+
+export async function requestMicrophoneAccess() {
+  if (!androidApp()) return;
+  const current = await AudioAccess.checkPermissions();
+  const result = current.microphone === 'granted' || current.microphone === 'denied'
+    ? current : await AudioAccess.requestPermissions();
+  if (result.microphone !== 'granted') throw new DOMException('Microphone permission is required.', 'NotAllowedError');
+}
+export const openAudioSettings = () => AudioAccess.openSettings();
 export async function downloadOrShare(blob: Blob, filename: string) {
   if (nativeApp()) {
     const bytes = new Uint8Array(await blob.arrayBuffer());

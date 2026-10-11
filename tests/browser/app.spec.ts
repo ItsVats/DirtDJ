@@ -164,10 +164,12 @@ test('offline detective: real three-second evidence, AI verdicts, resumed case, 
     // Actual MediaRecorder + AST, not mocked. The synthetic mic may not solve this clue.
     await expect(page.locator('.detective-verdict h4')).toHaveText(/Mystery solved|Not sure yet/, { timeout: 180000 });
     if (i === 0) await expect(page.locator('.game-progress')).toContainText('1 / 4 discoveries · 1 AI match');
+    await page.getByRole('navigation').getByRole('button', { name: 'Sounds', exact: true }).click();
     const sample = page.locator('.sample-row').last();
     await expect(sample.locator('.top-prediction')).toBeVisible();
     const duration = Number((await sample.locator('h3 span').innerText()).replace('s', ''));
     expect(duration).toBeGreaterThan(2.8); expect(duration).toBeLessThan(3.5);
+    await page.getByRole('navigation').getByRole('button', { name: 'Hunt', exact: true }).click();
     if (await page.getByRole('button', { name: 'I found it — keep discovery', exact: true }).count()) {
       await expect(page.locator('.game-progress')).toContainText(`${i} / 4 discoveries`);
       await page.getByRole('button', { name: 'I found it — keep discovery', exact: true }).click();
@@ -183,7 +185,9 @@ test('offline detective: real three-second evidence, AI verdicts, resumed case, 
   await expect(page.getByRole('heading', { name: 'Case closed. Ears open.' })).toBeVisible();
   await expect(page.locator('.casebook li')).toHaveCount(4);
   await expect(page.getByRole('button', { name: 'Stop beat', exact: true })).toHaveCount(0);
+  await page.getByRole('navigation').getByRole('button', { name: 'Kit', exact: true }).click();
   await expect(page.getByText('0 / 4 sounds', { exact: true })).toBeVisible();
+  await page.getByRole('navigation').getByRole('button', { name: 'Hunt', exact: true }).click();
   await expect(page.locator('.sample-row')).toHaveCount(4);
   await page.screenshot({ path: 'test-results/detective-complete.png', fullPage: true });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -228,4 +232,48 @@ test('offline detective: real three-second evidence, AI verdicts, resumed case, 
   await expect(page.locator('.game-progress')).toContainText('1 / 4 discoveries');
   await page.getByRole('button', { name: 'Delete Demo thump', exact: true }).click();
   await expect(page.locator('.game-progress')).toContainText('0 / 4 discoveries');
+});
+
+test('mobile screens keep the case and playing deck alive with touch-sized steps', async ({ page }) => {
+  await page.goto('/');
+  await seedKit(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  const nav = page.getByRole('navigation', { name: 'Main navigation' });
+  await expect(nav).toBeVisible();
+  await expect(page.locator('.hero')).toBeHidden();
+  await page.getByRole('button', { name: 'Open a case', exact: true }).click();
+  const clue = await page.locator('.detective-riddle').innerText();
+  await nav.getByRole('button', { name: 'Kit', exact: true }).click();
+  await expect(page.locator('.field-kit')).toBeVisible();
+  await expect(page.locator('.detective-panel')).toBeHidden();
+  await nav.getByRole('button', { name: 'Deck', exact: true }).click();
+  await page.getByRole('button', { name: 'Play beat', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Stop beat', exact: true })).toBeVisible();
+  const step = page.getByRole('button', { name: 'Thump step 16', exact: true });
+  const box = (await step.boundingBox())!;
+  expect(box.width).toBeGreaterThanOrEqual(44);
+  expect(box.height).toBeGreaterThanOrEqual(44);
+  await step.click();
+  await page.getByRole('group', { name: 'Deck lanes' }).getByRole('button', { name: 'Call', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Call step 16', exact: true })).toBeVisible();
+  await expect(step).toBeHidden();
+  await page.getByRole('group', { name: 'Deck lanes' }).getByRole('button', { name: 'Thump', exact: true }).click();
+  await page.getByRole('spinbutton', { name: 'Tempo in BPM' }).fill('112');
+  await nav.getByRole('button', { name: 'Hunt', exact: true }).click();
+  await expect(page.locator('.detective-riddle')).toHaveText(clue);
+  await nav.getByRole('button', { name: 'Deck', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Stop beat', exact: true })).toBeVisible();
+  await expect(page.getByRole('spinbutton', { name: 'Tempo in BPM' })).toHaveValue('112');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: 'test-results/app-mobile-deck.png', fullPage: true });
+  await page.getByRole('button', { name: 'Stop beat', exact: true }).click();
+  await nav.getByRole('button', { name: 'Kit', exact: true }).click();
+  await page.getByRole('button', { name: 'Record another', exact: true }).first().click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  const dialog = (await page.getByRole('dialog').boundingBox())!;
+  expect(dialog.width).toBe(390);
+  await page.screenshot({ path: 'test-results/app-mobile-recorder.png' });
+  await page.getByRole('button', { name: 'Close recorder' }).click();
+  await nav.getByRole('button', { name: 'Hunt', exact: true }).click();
+  await page.screenshot({ path: 'test-results/app-mobile-hunt.png', fullPage: true });
 });
